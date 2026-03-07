@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+
 @Slf4j
 @RestController
 @RequestMapping("/films")
