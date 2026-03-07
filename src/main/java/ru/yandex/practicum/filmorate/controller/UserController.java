@@ -45,7 +45,7 @@ public class UserController {
         User existingUser = users.stream()
                 .filter(u -> u.getId() == user.getId())
                 .findFirst()
-                .orElseThrow(() -> new ValidationException("Пользователь с id " + user.getId() + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
         existingUser.setEmail(user.getEmail());
         existingUser.setLogin(user.getLogin());
         if (user.getName() == null || user.getName().isBlank()) {

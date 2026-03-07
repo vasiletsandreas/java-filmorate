@@ -42,7 +42,7 @@ public class FilmController {
         Film existingFilm = films.stream()
                 .filter(f -> f.getId() == film.getId())
                 .findFirst()
-                .orElseThrow(() -> new ValidationException("Фильм с id " + film.getId() + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + film.getId() + " не найден"));
         existingFilm.setName(film.getName());
         existingFilm.setDescription(film.getDescription());
         existingFilm.setReleaseDate(film.getReleaseDate());

@@ -17,3 +17,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+        log.error("Ресурс не найден: {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
