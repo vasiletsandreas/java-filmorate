@@ -1,12 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validation.Create;
+import ru.yandex.practicum.filmorate.validation.Update;
 
-import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public User create(@Validated(Create.class) @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user);
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -36,7 +38,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User user) {
+    public User update(@Validated(Update.class) @RequestBody User user) {
         log.info("Получен запрос на обновление пользователя: {}", user);
         if (user.getId() == 0) {
             throw new ValidationException("Id пользователя должен быть указан");
@@ -45,14 +47,26 @@ public class UserController {
                 .filter(u -> u.getId() == user.getId())
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
-        existingUser.setEmail(user.getEmail());
-        existingUser.setLogin(user.getLogin());
-        if (user.getName() == null || user.getName().isBlank()) {
-            existingUser.setName(user.getLogin());
-        } else {
-            existingUser.setName(user.getName());
+
+        // Обновляем только те поля, которые были переданы (не null)
+        if (user.getEmail() != null) {
+            existingUser.setEmail(user.getEmail());
         }
-        existingUser.setBirthday(user.getBirthday());
+        if (user.getLogin() != null) {
+            existingUser.setLogin(user.getLogin());
+        }
+        // Обработка имени: если передано и не пустое — устанавливаем; если передано пустое — подставляем логин
+        if (user.getName() != null) {
+            if (user.getName().isBlank()) {
+                existingUser.setName(existingUser.getLogin());
+            } else {
+                existingUser.setName(user.getName());
+            }
+        }
+        if (user.getBirthday() != null) {
+            existingUser.setBirthday(user.getBirthday());
+        }
+
         log.info("Пользователь обновлен: {}", existingUser);
         return existingUser;
     }
